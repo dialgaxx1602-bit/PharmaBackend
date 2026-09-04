@@ -20,13 +20,11 @@ public class ProductoController {
         this.productoService = productoService;
     }
 
-    // Paso 8: GET /api/v1/productos
     @GetMapping
     public ResponseEntity<List<ProductoResponseDTO>> getAllProductos() {
         return ResponseEntity.ok(productoService.findAll());
     }
 
-    // Paso 8: GET /api/v1/productos/{id}
     @GetMapping("/{id}")
     public ResponseEntity<ProductoResponseDTO> getProductoById(@PathVariable Long id) {
         return productoService.findById(id)
@@ -34,14 +32,12 @@ public class ProductoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Paso 8 & 9: POST /api/v1/productos
     @PostMapping
     public ResponseEntity<ProductoResponseDTO> createProducto(@Valid @RequestBody ProductoRequestDTO requestDTO) {
         ProductoResponseDTO responseDTO = productoService.create(requestDTO);
         return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
     }
 
-    // Paso 8: PUT /api/v1/productos/{id}
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponseDTO> updateProducto(
             @PathVariable Long id,
@@ -50,7 +46,6 @@ public class ProductoController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    // Paso 8: DELETE /api/v1/productos/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProducto(@PathVariable Long id) {
         productoService.delete(id);

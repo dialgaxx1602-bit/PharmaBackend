@@ -36,7 +36,6 @@ public class ProductoControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // Paso 9: Probar asociación válida (POST con HTTP 201 + producto registrado + categoría relacionada)
     @Test
     public void testCreateProductoConAsociacionValida() throws Exception {
         ProductoRequestDTO requestDTO = ProductoRequestDTO.builder()
@@ -64,16 +63,15 @@ public class ProductoControllerTest {
         mockMvc.perform(post("/api/v1/productos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isCreated()) // HTTP 201
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(10)))
                 .andExpect(jsonPath("$.nombre", is("Paracetamol 500mg")))
                 .andExpect(jsonPath("$.precio", is(5.50)))
                 .andExpect(jsonPath("$.stock", is(100)))
-                .andExpect(jsonPath("$.categoria.id", is(1))) // categoría relacionada
+                .andExpect(jsonPath("$.categoria.id", is(1)))
                 .andExpect(jsonPath("$.categoria.nombre", is("Analgésicos")));
     }
 
-    // Paso 8: Test GET /api/v1/productos
     @Test
     public void testGetAllProductos() throws Exception {
         ProductoResponseDTO responseDTO = ProductoResponseDTO.builder()
@@ -91,7 +89,6 @@ public class ProductoControllerTest {
                 .andExpect(jsonPath("$[0].nombre", is("Ibuprofeno")));
     }
 
-    // Paso 8: Test GET /api/v1/productos/{id}
     @Test
     public void testGetProductoById() throws Exception {
         ProductoResponseDTO responseDTO = ProductoResponseDTO.builder()
@@ -108,7 +105,6 @@ public class ProductoControllerTest {
                 .andExpect(jsonPath("$.nombre", is("Ibuprofeno")));
     }
 
-    // Paso 8: Test PUT /api/v1/productos/{id}
     @Test
     public void testUpdateProducto() throws Exception {
         ProductoRequestDTO requestDTO = ProductoRequestDTO.builder()
@@ -134,7 +130,6 @@ public class ProductoControllerTest {
                 .andExpect(jsonPath("$.nombre", is("Paracetamol Forte")));
     }
 
-    // Paso 8: Test DELETE /api/v1/productos/{id}
     @Test
     public void testDeleteProducto() throws Exception {
         mockMvc.perform(delete("/api/v1/productos/1"))
@@ -143,7 +138,6 @@ public class ProductoControllerTest {
         Mockito.verify(productoService, Mockito.times(1)).delete(1L);
     }
 
-    // Paso 10: Probar asociación inválida (categoría no existe -> respuesta controlada 404)
     @Test
     public void testCreateProductoConCategoriaInexistente_RespuestaControlada() throws Exception {
         ProductoRequestDTO requestDTO = ProductoRequestDTO.builder()
@@ -159,16 +153,15 @@ public class ProductoControllerTest {
         mockMvc.perform(post("/api/v1/productos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isNotFound()) // 404 Not Found controlado
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.estado", is(404)))
                 .andExpect(jsonPath("$.error", is("Recurso no encontrado")))
                 .andExpect(jsonPath("$.mensaje", is("Categoria no encontrado con id : '999999'")));
     }
 
-    // Validación de DTO (Errores de validación controlados 422)
     @Test
     public void testValidacionDtoInvalido() throws Exception {
-        ProductoRequestDTO dtoInvalido = new ProductoRequestDTO(); // Campos nulos
+        ProductoRequestDTO dtoInvalido = new ProductoRequestDTO();
 
         mockMvc.perform(post("/api/v1/productos")
                         .contentType(MediaType.APPLICATION_JSON)

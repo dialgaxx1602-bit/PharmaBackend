@@ -50,14 +50,12 @@ public class PedidoServiceImpl implements PedidoService {
     public PedidoResponseDTO registrarPedido(PedidoRequestDTO requestDTO) {
         log.info("Iniciando registro de pedido para el clienteId: {}", requestDTO.getClienteId());
 
-        // 1. Búsqueda del cliente
         Cliente cliente = clienteRepository.findById(requestDTO.getClienteId())
                 .orElseThrow(() -> {
                     log.warn("Cliente no encontrado con ID: {}", requestDTO.getClienteId());
                     return new ResourceNotFoundException("Cliente", "id", requestDTO.getClienteId());
                 });
 
-        // 2. Validación de detalles
         if (requestDTO.getDetalles() == null || requestDTO.getDetalles().isEmpty()) {
             log.warn("Intento de registrar pedido sin detalles para clienteId: {}", requestDTO.getClienteId());
             throw new BusinessException("El pedido debe contener al menos un detalle");
@@ -72,33 +70,28 @@ public class PedidoServiceImpl implements PedidoService {
         BigDecimal totalPedido = BigDecimal.ZERO;
 
         for (DetallePedidoRequestDTO detalleReq : requestDTO.getDetalles()) {
-            // 3. Búsqueda de cada producto
+
             Producto producto = productoRepository.findById(detalleReq.getProductoId())
                     .orElseThrow(() -> {
                         log.warn("Producto no encontrado con ID: {}", detalleReq.getProductoId());
                         return new ResourceNotFoundException("Producto", "id", detalleReq.getProductoId());
                     });
 
-            // 4. Validación de cantidad
             if (detalleReq.getCantidad() == null || detalleReq.getCantidad() <= 0) {
                 log.warn("Cantidad invalida ({}) para producto ID: {}", detalleReq.getCantidad(), producto.getId());
                 throw new BusinessException("La cantidad debe ser mayor a 0 para el producto: " + producto.getNombre());
             }
 
-            // 5. Validación de stock
             if (producto.getStock() < detalleReq.getCantidad()) {
                 log.warn("Stock insuficiente para el producto ID: {}. Disponible: {}, Solicitado: {}",
                         producto.getId(), producto.getStock(), detalleReq.getCantidad());
                 throw new StockInsuficienteException(producto.getNombre(), producto.getStock(), detalleReq.getCantidad());
             }
 
-            // 6. Recuperación del precio
             BigDecimal precioUnitario = producto.getPrecio();
 
-            // 7. Cálculo de subtotal
             BigDecimal subtotal = precioUnitario.multiply(BigDecimal.valueOf(detalleReq.getCantidad()));
 
-            // 8. Construcción del detalle
             DetallePedido detalle = DetallePedido.builder()
                     .pedido(pedido)
                     .producto(producto)
@@ -109,21 +102,16 @@ public class PedidoServiceImpl implements PedidoService {
 
             pedido.addDetalle(detalle);
 
-            // 9. Reducción de existencias
             producto.setStock(producto.getStock() - detalleReq.getCantidad());
             productoRepository.save(producto);
 
-            // Acumulación para el total
             totalPedido = totalPedido.add(subtotal);
         }
 
-        // 10. Cálculo del total
         pedido.setTotal(totalPedido);
 
-        // 11. Asignación del estado inicial
         pedido.setEstado("PENDIENTE");
 
-        // 12. Persistencia del pedido
         Pedido guardado = pedidoRepository.save(pedido);
         log.info("Pedido registrado exitosamente con ID: {}, total: {}", guardado.getId(), guardado.getTotal());
 

@@ -39,7 +39,6 @@ public class Producto {
     @Column(name = "stock", nullable = false)
     private Integer stock;
 
-    // Paso 2: Asociación ManyToOne con Categoria
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;

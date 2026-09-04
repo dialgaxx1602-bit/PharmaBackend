@@ -5,10 +5,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-/**
- * DTO de entrada para crear o actualizar un Producto.
- * Recibe: nombre, precio, stock, categoriaId.
- */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,7 +29,6 @@ public class ProductoRequestDTO {
     @Positive(message = "El ID de categoría debe ser un número positivo")
     private Long categoriaId;
 
-    // Getters y Setters explícitos (complementan Lombok)
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 

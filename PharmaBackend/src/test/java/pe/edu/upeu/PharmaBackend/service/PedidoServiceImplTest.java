@@ -82,7 +82,7 @@ class PedidoServiceImplTest {
     @Test
     @DisplayName("Debe registrar un pedido exitosamente ejecutando los 12 pasos y reduciendo existencias")
     void registrarPedido_Exitoso() {
-        // Given
+
         DetallePedidoRequestDTO detalleReq = DetallePedidoRequestDTO.builder()
                 .productoId(10L)
                 .cantidad(2)
@@ -102,17 +102,15 @@ class PedidoServiceImplTest {
             return p;
         });
 
-        // When
         PedidoResponseDTO responseDTO = pedidoService.registrarPedido(requestDTO);
 
-        // Then
         assertNotNull(responseDTO);
         assertEquals(100L, responseDTO.getId());
         assertEquals(1L, responseDTO.getClienteId());
         assertEquals("PENDIENTE", responseDTO.getEstado());
         assertEquals(new BigDecimal("11.00"), responseDTO.getTotal());
         assertEquals(1, responseDTO.getDetalles().size());
-        assertEquals(18, producto.getStock()); // 20 - 2
+        assertEquals(18, producto.getStock());
 
         verify(clienteRepository).findById(1L);
         verify(productoRepository).findById(10L);
@@ -152,7 +150,7 @@ class PedidoServiceImplTest {
     void registrarPedido_StockInsuficiente() {
         DetallePedidoRequestDTO detalleReq = DetallePedidoRequestDTO.builder()
                 .productoId(10L)
-                .cantidad(50) // stock es 20
+                .cantidad(50)
                 .build();
 
         PedidoRequestDTO requestDTO = PedidoRequestDTO.builder()
@@ -165,6 +163,6 @@ class PedidoServiceImplTest {
 
         StockInsuficienteException ex = assertThrows(StockInsuficienteException.class, () -> pedidoService.registrarPedido(requestDTO));
         assertTrue(ex.getMessage().contains("Stock insuficiente"));
-        assertEquals(20, producto.getStock()); // stock intacto
+        assertEquals(20, producto.getStock());
     }
 }
