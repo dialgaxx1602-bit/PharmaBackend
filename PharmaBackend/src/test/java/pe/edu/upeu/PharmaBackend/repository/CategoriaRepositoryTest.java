@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import pe.edu.upeu.PharmaBackend.entity.Categoria;
 import java.util.Optional;
+import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
+
 @DataJpaTest
+@ActiveProfiles("test")
 public class CategoriaRepositoryTest {
     @Autowired
     private CategoriaRepository categoriaRepository;
