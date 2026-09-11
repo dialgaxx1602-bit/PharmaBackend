@@ -144,6 +144,41 @@ public class PedidoServiceImpl implements PedidoService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional
+    public PedidoResponseDTO anularPedido(Long id) {
+        log.info("Iniciando anulacion de pedido ID: {}", id);
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido", "id", id));
+
+        if ("ANULADA".equalsIgnoreCase(pedido.getEstado())) {
+            throw new BusinessException("El pedido ya se encuentra anulado");
+        }
+
+        // Devolver stock de los productos
+        for (DetallePedido detalle : pedido.getDetalles()) {
+            Producto producto = detalle.getProducto();
+            producto.setStock(producto.getStock() + detalle.getCantidad());
+            productoRepository.save(producto);
+        }
+
+        pedido.setEstado("ANULADA");
+        Pedido actualizado = pedidoRepository.save(pedido);
+        log.info("Pedido ID: {} anulado exitosamente", actualizado.getId());
+        return pedidoMapper.toResponseDTO(actualizado);
+    }
+
+    @Override
+    @Transactional
+    public PedidoResponseDTO actualizarEstado(Long id, String nuevoEstado) {
+        log.info("Actualizando estado de pedido ID: {} a '{}'", id, nuevoEstado);
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido", "id", id));
+        pedido.setEstado(nuevoEstado);
+        Pedido actualizado = pedidoRepository.save(pedido);
+        return pedidoMapper.toResponseDTO(actualizado);
+    }
+
     private static final java.util.Set<String> CAMPOS_ORDENACION_PERMITIDOS = java.util.Set.of(
             "id", "fecha", "total", "estado"
     );

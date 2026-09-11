@@ -43,6 +43,16 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.findByClienteId(clienteId));
     }
 
+    @PatchMapping("/{id}/anular")
+    public ResponseEntity<PedidoResponseDTO> anularPedido(@PathVariable Long id) {
+        return ResponseEntity.ok(pedidoService.anularPedido(id));
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<PedidoResponseDTO> actualizarEstado(@PathVariable Long id, @RequestParam String estado) {
+        return ResponseEntity.ok(pedidoService.actualizarEstado(id, estado));
+    }
+
     @GetMapping("/buscar")
     public ResponseEntity<List<PedidoResponseDTO>> buscarPedidos(
             @RequestParam(required = false) Long clienteId,

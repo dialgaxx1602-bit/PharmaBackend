@@ -23,4 +23,8 @@ public interface PedidoService {
     List<PedidoResponseDTO> findAll();
 
     List<PedidoResponseDTO> findByClienteId(Long clienteId);
+
+    PedidoResponseDTO anularPedido(Long id);
+
+    PedidoResponseDTO actualizarEstado(Long id, String nuevoEstado);
 }
