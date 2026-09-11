@@ -143,4 +143,50 @@ public class PedidoServiceImpl implements PedidoService {
                 .map(pedidoMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
+
+    private static final java.util.Set<String> CAMPOS_ORDENACION_PERMITIDOS = java.util.Set.of(
+            "id", "fecha", "total", "estado"
+    );
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PedidoResponseDTO> buscar(Long clienteId,
+                                          String estado,
+                                          LocalDateTime desde,
+                                          LocalDateTime hasta,
+                                          String sortBy,
+                                          String sortDir) {
+        long inicio = System.currentTimeMillis();
+        log.info("Iniciando busqueda de ventas - clienteId: {}, estado: {}, desde: {}, hasta: {}, sortBy: {}, sortDir: {}",
+                clienteId, estado, desde, hasta, sortBy, sortDir);
+
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            log.warn("Rango de fechas invalido: 'desde' ({}) es posterior a 'hasta' ({})", desde, hasta);
+            throw new pe.edu.upeu.PharmaBackend.exception.ReglaNegocioException("La fecha 'desde' no puede ser posterior a la fecha 'hasta'");
+        }
+
+        String campoOrden = (sortBy == null || sortBy.trim().isEmpty()) ? "fecha" : sortBy.trim().toLowerCase();
+        if (!CAMPOS_ORDENACION_PERMITIDOS.contains(campoOrden)) {
+            log.warn("Campo de ordenamiento no permitido: '{}'", sortBy);
+            throw new pe.edu.upeu.PharmaBackend.exception.ReglaNegocioException("Campo de ordenamiento no permitido: " + sortBy);
+        }
+
+        org.springframework.data.domain.Sort.Direction direccion =
+                (sortDir != null && sortDir.equalsIgnoreCase("ASC"))
+                        ? org.springframework.data.domain.Sort.Direction.ASC
+                        : org.springframework.data.domain.Sort.Direction.DESC;
+
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(direccion, campoOrden);
+
+        List<Pedido> pedidos = pedidoRepository.buscar(clienteId, estado, desde, hasta, sort);
+
+        List<PedidoResponseDTO> resultados = pedidos.stream()
+                .map(pedidoMapper::toResponseDTO)
+                .collect(Collectors.toList());
+
+        long duracionMs = System.currentTimeMillis() - inicio;
+        log.info("Busqueda de ventas completada - filas retornadas: {}, duracion: {} ms", resultados.size(), duracionMs);
+
+        return resultados;
+    }
 }

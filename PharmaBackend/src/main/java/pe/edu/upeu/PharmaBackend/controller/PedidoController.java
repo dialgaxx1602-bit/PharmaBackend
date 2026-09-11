@@ -42,4 +42,16 @@ public class PedidoController {
     public ResponseEntity<List<PedidoResponseDTO>> getPedidosByClienteId(@PathVariable Long clienteId) {
         return ResponseEntity.ok(pedidoService.findByClienteId(clienteId));
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<PedidoResponseDTO>> buscarPedidos(
+            @RequestParam(required = false) Long clienteId,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime desde,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime hasta,
+            @RequestParam(required = false, defaultValue = "fecha") String sortBy,
+            @RequestParam(required = false, defaultValue = "DESC") String sortDir
+    ) {
+        return ResponseEntity.ok(pedidoService.buscar(clienteId, estado, desde, hasta, sortBy, sortDir));
+    }
 }

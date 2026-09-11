@@ -24,9 +24,15 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @CreatedDate
-    @Column(name = "fecha", nullable = false, updatable = false)
+    @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.fecha == null) {
+            this.fecha = LocalDateTime.now();
+        }
+    }
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_cliente", nullable = false)

@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
+@org.springframework.context.annotation.Import(pe.edu.upeu.PharmaBackend.config.JpaAuditingConfig.class)
 public class CategoriaRepositoryTest {
     @Autowired
     private CategoriaRepository categoriaRepository;

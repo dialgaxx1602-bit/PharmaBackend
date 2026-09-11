@@ -25,6 +25,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(cuerpo);
     }
 
+    @ExceptionHandler(RecursoNoEncontradoException.class)
+    public ResponseEntity<Map<String, Object>> handleRecursoNoEncontrado(RecursoNoEncontradoException ex) {
+        Map<String, Object> cuerpo = new LinkedHashMap<>();
+        cuerpo.put("timestamp", LocalDateTime.now().toString());
+        cuerpo.put("estado", HttpStatus.NOT_FOUND.value());
+        cuerpo.put("error", "Recurso no encontrado");
+        cuerpo.put("mensaje", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(cuerpo);
+    }
+
+    @ExceptionHandler(ReglaNegocioException.class)
+    public ResponseEntity<Map<String, Object>> handleReglaNegocioException(ReglaNegocioException ex) {
+        Map<String, Object> cuerpo = new LinkedHashMap<>();
+        cuerpo.put("timestamp", LocalDateTime.now().toString());
+        cuerpo.put("estado", HttpStatus.CONFLICT.value());
+        cuerpo.put("error", "Conflicto con regla de negocio");
+        cuerpo.put("mensaje", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(cuerpo);
+    }
+
     @ExceptionHandler(StockInsuficienteException.class)
     public ResponseEntity<Map<String, Object>> handleStockInsuficiente(StockInsuficienteException ex) {
         Map<String, Object> cuerpo = new LinkedHashMap<>();
