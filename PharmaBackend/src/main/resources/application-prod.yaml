@@ -23,4 +23,10 @@ springdoc:
 
   api-docs:
     enabled: false
-  
+
+logging:
+  level:
+    root: WARN
+    pe.edu.upeu.PharmaBackend: INFO
+    org.springframework: WARN
+    org.hibernate: ERROR
