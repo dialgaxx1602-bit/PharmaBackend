@@ -5,7 +5,7 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    driver-class-name: oracle.jdbc.OracleDriver
+    driver-class-name: oracle.jdbc.driver.OracleDriver
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
     hibernate:
@@ -16,6 +16,12 @@ spring:
     properties:
       hibernate:
         format_sql: false
+  # En produccion el esquema se crea y evoluciona unicamente con las
+  # migraciones versionadas de db/migration; nunca se hace baseline.
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
 
 springdoc:
   swagger-ui:
@@ -24,9 +30,25 @@ springdoc:
   api-docs:
     enabled: false
 
+# En produccion solo se conserva la traza funcional de los servicios
+# (parametros, filas y duracion); el SQL y el detalle web se apagan.
 logging:
   level:
     root: WARN
     pe.edu.upeu.PharmaBackend: INFO
-    org.springframework: WARN
-    org.hibernate: ERROR
+    pe.edu.upeu.PharmaBackend.service.impl: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+    org.springframework.web: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n"
+
+# En produccion el origen del frontend llega por variable de entorno,
+# tambien de forma explicita y sin comodin.
+app:
+  cors:
+    allowed-origins: ${FRONTEND_ORIGINS:https://pharmasoft.upeu.edu.pe}
+  # En produccion la clave llega por variable de entorno, nunca en el repo.
+  jwt:
+    secret: ${JWT_SECRET}
+    expiracion-minutos: ${JWT_EXPIRACION_MINUTOS:60}
