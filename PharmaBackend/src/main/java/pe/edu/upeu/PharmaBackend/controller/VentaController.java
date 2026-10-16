@@ -1,51 +1,122 @@
 package pe.edu.upeu.PharmaBackend.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upeu.PharmaBackend.dto.PedidoResponseDTO;
+import pe.edu.upeu.PharmaBackend.dto.PaginaResponseDTO;
+import pe.edu.upeu.PharmaBackend.dto.VentaRequestDTO;
+import pe.edu.upeu.PharmaBackend.dto.VentaResponseDTO;
+import pe.edu.upeu.PharmaBackend.enums.EstadoVenta;
 import pe.edu.upeu.PharmaBackend.service.service.VentaService;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/ventas")
-@Tag(name = "Ventas", description = "Endpoints para consultas y operaciones sobre ventas")
 public class VentaController {
 
     private final VentaService ventaService;
 
-    public VentaController(VentaService ventaService) {
+    public VentaController(
+            VentaService ventaService) {
+
         this.ventaService = ventaService;
     }
 
+    @PostMapping
+    public ResponseEntity<VentaResponseDTO> registrar(
+            @Valid
+            @RequestBody VentaRequestDTO request) {
+
+        VentaResponseDTO response =
+                ventaService.registrar(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VentaResponseDTO> buscar(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                ventaService.buscar(id)
+        );
+    }
+
+    /*
+     * Listado paginado de ventas, sin filtros.
+     * Campos de ordenamiento permitidos: id, fecha, total, estado.
+     */
+    @GetMapping
+    public ResponseEntity<PaginaResponseDTO<VentaResponseDTO>> listar(
+
+            @RequestParam(defaultValue = "0")
+            int pagina,
+
+            @RequestParam(defaultValue = "20")
+            int tamanio,
+
+            @RequestParam(required = false, defaultValue = "fecha")
+            String ordenarPor,
+
+            @RequestParam(required = false, defaultValue = "desc")
+            String direccion) {
+
+        return ResponseEntity.ok(
+                ventaService.listar(pagina, tamanio, ordenarPor, direccion)
+        );
+    }
+
+    /*
+     * Búsqueda paginada de ventas con filtros combinados.
+     *
+     * Todos los filtros son opcionales; los que no se envían no
+     * filtran. Sin coincidencias responde 200 con página vacía.
+     */
     @GetMapping("/buscar")
-    @Operation(summary = "Buscar ventas con filtros combinados y ordenamiento",
-               description = "Permite filtrar por clienteId, estado, rango de fechas y ordenar por campos en lista blanca (id, fecha, total, estado)")
-    public ResponseEntity<List<PedidoResponseDTO>> buscarVentas(
-            @Parameter(description = "ID del cliente (opcional)")
-            @RequestParam(required = false) Long clienteId,
+    public ResponseEntity<PaginaResponseDTO<VentaResponseDTO>> buscar(
 
-            @Parameter(description = "Estado de la venta (opcional: REGISTRADA, ANULADA, PENDIENTE)")
-            @RequestParam(required = false) String estado,
+            @RequestParam(required = false)
+            Long clienteId,
 
-            @Parameter(description = "Fecha inicial (formato ISO date-time, opcional)")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desde,
+            @RequestParam(required = false)
+            EstadoVenta estado,
 
-            @Parameter(description = "Fecha final (formato ISO date-time, opcional)")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate desde,
 
-            @Parameter(description = "Campo de ordenamiento (id, fecha, total, estado; por defecto fecha)")
-            @RequestParam(required = false, defaultValue = "fecha") String sortBy,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate hasta,
 
-            @Parameter(description = "Dirección de ordenamiento (ASC, DESC; por defecto DESC)")
-            @RequestParam(required = false, defaultValue = "DESC") String sortDir
-    ) {
-        List<PedidoResponseDTO> response = ventaService.buscar(clienteId, estado, desde, hasta, sortBy, sortDir);
-        return ResponseEntity.ok(response);
+            @RequestParam(defaultValue = "0")
+            int pagina,
+
+            @RequestParam(defaultValue = "20")
+            int tamanio,
+
+            @RequestParam(required = false, defaultValue = "fecha")
+            String ordenarPor,
+
+            @RequestParam(required = false, defaultValue = "desc")
+            String direccion) {
+
+        return ResponseEntity.ok(
+                ventaService.buscar(
+                        clienteId,
+                        estado,
+                        desde,
+                        hasta,
+                        pagina,
+                        tamanio,
+                        ordenarPor,
+                        direccion
+                )
+        );
     }
 }

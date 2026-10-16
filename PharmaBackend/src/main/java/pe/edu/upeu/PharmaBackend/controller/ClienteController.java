@@ -4,10 +4,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upeu.PharmaBackend.dto.ClienteDTO;
+import pe.edu.upeu.PharmaBackend.dto.ClienteRequestDTO;
+import pe.edu.upeu.PharmaBackend.dto.ClienteResponseDTO;
+import pe.edu.upeu.PharmaBackend.dto.PaginaResponseDTO;
 import pe.edu.upeu.PharmaBackend.service.service.ClienteService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/clientes")
@@ -15,36 +15,74 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
-    public ClienteController(ClienteService clienteService) {
+    public ClienteController(
+            ClienteService clienteService) {
+
         this.clienteService = clienteService;
     }
 
     @PostMapping
-    public ResponseEntity<ClienteDTO> createCliente(@Valid @RequestBody ClienteDTO dto) {
-        ClienteDTO responseDTO = clienteService.create(dto);
-        return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+    public ResponseEntity<ClienteResponseDTO> crear(
+            @Valid
+            @RequestBody ClienteRequestDTO request) {
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(clienteService.crear(request));
     }
 
+    /*
+     * Listado paginado de clientes.
+     * Campos de ordenamiento permitidos: id, dni, nombres, apellidos, email.
+     */
     @GetMapping
-    public ResponseEntity<List<ClienteDTO>> getAllClientes() {
-        return ResponseEntity.ok(clienteService.findAll());
+    public ResponseEntity<PaginaResponseDTO<ClienteResponseDTO>> listar(
+
+            @RequestParam(defaultValue = "0")
+            int pagina,
+
+            @RequestParam(defaultValue = "20")
+            int tamanio,
+
+            @RequestParam(required = false, defaultValue = "id")
+            String ordenarPor,
+
+            @RequestParam(required = false, defaultValue = "asc")
+            String direccion) {
+
+        return ResponseEntity.ok(
+                clienteService.listar(pagina, tamanio, ordenarPor, direccion)
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteDTO> getClienteById(@PathVariable Long id) {
-        return clienteService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ClienteResponseDTO> buscar(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                clienteService.buscar(id)
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteDTO> updateCliente(@PathVariable Long id, @Valid @RequestBody ClienteDTO dto) {
-        return ResponseEntity.ok(clienteService.update(id, dto));
+    public ResponseEntity<ClienteResponseDTO> actualizar(
+            @PathVariable Long id,
+            @Valid
+            @RequestBody ClienteRequestDTO request) {
+
+        return ResponseEntity.ok(
+                clienteService.actualizar(id, request)
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCliente(@PathVariable Long id) {
-        clienteService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        clienteService.eliminar(id);
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

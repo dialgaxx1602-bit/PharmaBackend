@@ -1,19 +1,22 @@
 package pe.edu.upeu.PharmaBackend.service.service;
 
-import pe.edu.upeu.PharmaBackend.dto.ClienteDTO;
-
-import java.util.List;
-import java.util.Optional;
+import pe.edu.upeu.PharmaBackend.dto.ClienteRequestDTO;
+import pe.edu.upeu.PharmaBackend.dto.ClienteResponseDTO;
+import pe.edu.upeu.PharmaBackend.dto.PaginaResponseDTO;
 
 public interface ClienteService {
 
-    ClienteDTO create(ClienteDTO clienteDTO);
+    ClienteResponseDTO crear(ClienteRequestDTO request);
 
-    Optional<ClienteDTO> findById(Long id);
+    ClienteResponseDTO actualizar(Long id, ClienteRequestDTO request);
 
-    List<ClienteDTO> findAll();
+    ClienteResponseDTO buscar(Long id);
 
-    ClienteDTO update(Long id, ClienteDTO clienteDTO);
+    void eliminar(Long id);
 
-    void delete(Long id);
+    PaginaResponseDTO<ClienteResponseDTO> listar(
+            int pagina,
+            int tamanio,
+            String ordenarPor,
+            String direccion);
 }
