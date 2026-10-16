@@ -33,4 +33,12 @@ public class AuthController {
     public ResponseEntity<UsuarioResponseDTO> me(Authentication authentication) {
         return ResponseEntity.ok(authService.usuarioActual(authentication.getName()));
     }
+
+    @org.springframework.web.bind.annotation.PutMapping("/password")
+    public ResponseEntity<Void> cambiarPassword(
+            Authentication authentication,
+            @Valid @RequestBody pe.edu.upeu.PharmaBackend.dto.auth.CambioPasswordRequestDTO request) {
+        authService.cambiarPassword(authentication.getName(), request);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -9,4 +9,6 @@ public interface AuthService {
     LoginResponseDTO login(LoginRequestDTO request);
 
     UsuarioResponseDTO usuarioActual(String username);
+
+    void cambiarPassword(String username, pe.edu.upeu.PharmaBackend.dto.auth.CambioPasswordRequestDTO request);
 }
