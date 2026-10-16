@@ -50,4 +50,20 @@ public class UsuarioController {
     public ResponseEntity<List<RolResponseDTO>> roles() {
         return ResponseEntity.ok(usuarioService.listarRoles());
     }
+
+    @org.springframework.web.bind.annotation.PutMapping("/usuarios/{id}/roles")
+    public ResponseEntity<UsuarioResponseDTO> asignarRoles(
+            @org.springframework.web.bind.annotation.PathVariable Long id,
+            @Valid @RequestBody pe.edu.upeu.PharmaBackend.dto.auth.AsignarRolesRequestDTO request,
+            org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(usuarioService.asignarRoles(id, request, authentication.getName()));
+    }
+
+    @org.springframework.web.bind.annotation.PatchMapping("/usuarios/{id}/estado")
+    public ResponseEntity<UsuarioResponseDTO> cambiarEstado(
+            @org.springframework.web.bind.annotation.PathVariable Long id,
+            @Valid @RequestBody pe.edu.upeu.PharmaBackend.dto.auth.CambiarEstadoUsuarioRequestDTO request,
+            org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(usuarioService.cambiarEstado(id, request, authentication.getName()));
+    }
 }

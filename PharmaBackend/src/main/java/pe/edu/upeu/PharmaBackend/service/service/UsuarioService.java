@@ -16,4 +16,8 @@ public interface UsuarioService {
     List<EmpleadoResponseDTO> listarEmpleados();
 
     List<RolResponseDTO> listarRoles();
+
+    UsuarioResponseDTO asignarRoles(Long id, pe.edu.upeu.PharmaBackend.dto.auth.AsignarRolesRequestDTO request, String usernameAutenticado);
+
+    UsuarioResponseDTO cambiarEstado(Long id, pe.edu.upeu.PharmaBackend.dto.auth.CambiarEstadoUsuarioRequestDTO request, String usernameAutenticado);
 }
